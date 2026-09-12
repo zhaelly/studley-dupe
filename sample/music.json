@@ -1,0 +1,104 @@
+{
+  "questions": [
+    {
+      "question": "What does BPM stand for in music production?",
+      "choices": ["Beats Per Minute", "Bass Per Measure", "Beats Per Melody"],
+      "answer": "Beats Per Minute"
+    },
+    {
+      "question": "Which plugin type is primarily used to change the frequency balance of a sound?",
+      "choices": ["Compressor", "EQ", "Reverb"],
+      "answer": "EQ"
+    },
+    {
+      "question": "What does a compressor primarily control?",
+      "choices": ["Dynamic range", "Stereo width", "Pitch"],
+      "answer": "Dynamic range"
+    },
+    {
+      "question": "Which effect simulates the sound of a space or room?",
+      "choices": ["Distortion", "Reverb", "Phaser"],
+      "answer": "Reverb"
+    },
+    {
+      "question": "What is MIDI?",
+      "choices": ["An audio file format", "A protocol for communicating musical performance data", "A type of microphone"],
+      "answer": "A protocol for communicating musical performance data"
+    },
+    {
+      "question": "What does clipping usually mean in digital audio?",
+      "choices": ["The audio signal exceeds the available level and becomes distorted", "The audio becomes completely silent", "The tempo changes automatically"],
+      "answer": "The audio signal exceeds the available level and becomes distorted"
+    },
+    {
+      "question": "Which frequency range is generally associated with bass?",
+      "choices": ["Low frequencies", "Mid frequencies", "High frequencies"],
+      "answer": "Low frequencies"
+    },
+    {
+      "question": "What does a limiter mainly do?",
+      "choices": ["Prevents the signal from exceeding a set level", "Adds echo", "Changes the key"],
+      "answer": "Prevents the signal from exceeding a set level"
+    },
+    {
+      "question": "What is sidechain compression commonly used for in electronic music?",
+      "choices": ["Making vocals sound wider", "Creating a pumping effect between two signals", "Removing all bass"],
+      "answer": "Creating a pumping effect between two signals"
+    },
+    {
+      "question": "Which of these is a synthesizer?",
+      "choices": ["Serum", "Audacity", "Spotify"],
+      "answer": "Serum"
+    },
+    {
+      "question": "What is the purpose of panning?",
+      "choices": ["Changing the pitch", "Positioning a sound in the stereo field", "Increasing the sample rate"],
+      "answer": "Positioning a sound in the stereo field"
+    },
+    {
+      "question": "What does automation allow you to do?",
+      "choices": ["Automatically change parameters over time", "Convert MIDI into vinyl", "Increase the computer's RAM"],
+      "answer": "Automatically change parameters over time"
+    },
+    {
+      "question": "Which waveform is commonly associated with a bright, buzzy sound?",
+      "choices": ["Sine wave", "Square wave", "Silence"],
+      "answer": "Square wave"
+    },
+    {
+      "question": "What is gain staging?",
+      "choices": ["Managing signal levels throughout the signal chain", "Adding more instruments to a song", "Changing the song's key"],
+      "answer": "Managing signal levels throughout the signal chain"
+    },
+    {
+      "question": "What does quantization typically do to MIDI notes?",
+      "choices": ["Adjusts their timing toward a grid", "Adds reverb", "Changes their volume automatically"],
+      "answer": "Adjusts their timing toward a grid"
+    },
+    {
+      "question": "Which frequency range is usually responsible for much of the air or brightness in a mix?",
+      "choices": ["Sub-bass", "High frequencies", "Low mids"],
+      "answer": "High frequencies"
+    },
+    {
+      "question": "What is a DAW?",
+      "choices": ["Digital Audio Workstation", "Digital Amplifier Wave", "Dynamic Audio Wire"],
+      "answer": "Digital Audio Workstation"
+    },
+    {
+      "question": "Which of these is an example of a DAW?",
+      "choices": ["FL Studio", "Serum", "Kontakt"],
+      "answer": "FL Studio"
+    },
+    {
+      "question": "What does stereo mean in audio?",
+      "choices": ["Audio containing separate left and right channels", "Audio with no bass", "Audio recorded at double speed"],
+      "answer": "Audio containing separate left and right channels"
+    },
+    {
+      "question": "What is distortion commonly used for?",
+      "choices": ["Adding harmonic coloration or saturation", "Removing all frequencies", "Changing MIDI notes into lyrics"],
+      "answer": "Adding harmonic coloration or saturation"
+    }
+  ]
+}

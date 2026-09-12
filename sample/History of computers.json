@@ -1,0 +1,122 @@
+[
+  {
+    "question": "Before 1935, what did the term 'computer' refer to?",
+    "options": ["A) A machine", "B) A person", "C) A calculator"],
+    "answer": "B"
+  },
+  {
+    "question": "Who is considered the father of computing?",
+    "options": ["A) Blaise Pascal", "B) Charles Babbage", "C) Gottfried Leibniz"],
+    "answer": "B"
+  },
+  {
+    "question": "What was the first 'machine' for calculating developed by the ancient Romans?",
+    "options": ["A) Abacus", "B) Pascaline", "C) Arithmometer"],
+    "answer": "A"
+  },
+  {
+    "question": "Who invented Napier’s Bones in 1614?",
+    "options": ["A) William Oughtred", "B) John Napier", "C) Gottfried Leibniz"],
+    "answer": "B"
+  },
+  {
+    "question": "What device invented in 1621 was based on logarithms and used for multiplication and division?",
+    "options": ["A) Slide Rule", "B) Pascaline", "C) Stepped Reckoner"],
+    "answer": "A"
+  },
+  {
+    "question": "Blaise Pascal invented which mechanical calculator in 1642?",
+    "options": ["A) Stepped Reckoner", "B) Pascaline", "C) Arithmometer"],
+    "answer": "B"
+  },
+  {
+    "question": "Who invented the Stepped Reckoner in 1673?",
+    "options": ["A) Charles Babbage", "B) Gottfried Wilhelm Leibniz", "C) Thomas de Colmar"],
+    "answer": "B"
+  },
+  {
+    "question": "What essential concept did Leibniz contribute to modern computers?",
+    "options": ["A) Punch cards", "B) Binary arithmetic", "C) Vacuum tubes"],
+    "answer": "B"
+  },
+  {
+    "question": "The Jacquard Loom, invented in 1745, was controlled by what?",
+    "options": ["A) Gears", "B) Punch cards", "C) Wooden rods"],
+    "answer": "B"
+  },
+  {
+    "question": "Which device was the first reliable and commercially successful calculating machine?",
+    "options": ["A) Arithmometer", "B) Pascaline", "C) Difference Engine"],
+    "answer": "A"
+  },
+  {
+    "question": "Who invented the Difference Engine in 1822?",
+    "options": ["A) Charles Babbage", "B) Thomas de Colmar", "C) Konrad Zuse"],
+    "answer": "A"
+  },
+  {
+    "question": "The Harvard Mark I was the first:",
+    "options": ["A) Mechanical calculator", "B) Electro-mechanical computer", "C) Stored-program computer"],
+    "answer": "B"
+  },
+  {
+    "question": "Konrad Zuse created the first programmable computer in Germany. What was it called?",
+    "options": ["A) ENIAC", "B) Z1", "C) UNIVAC"],
+    "answer": "B"
+  },
+  {
+    "question": "The Atanasoff-Berry Computer (ABC) was the first:",
+    "options": ["A) Electronic digital computing device", "B) Stored-program computer", "C) Printing calculator"],
+    "answer": "A"
+  },
+  {
+    "question": "Which machine broke Hitler’s codes during WWII?",
+    "options": ["A) ENIAC", "B) Colossus", "C) UNIVAC"],
+    "answer": "B"
+  },
+  {
+    "question": "What was the world’s first electronic, large-scale, general-purpose computer?",
+    "options": ["A) ENIAC", "B) EDVAC", "C) Harvard Mark I"],
+    "answer": "A"
+  },
+  {
+    "question": "Which computer introduced the concept of stored programs?",
+    "options": ["A) EDVAC", "B) ENIAC", "C) Harvard Mark I"],
+    "answer": "A"
+  },
+  {
+    "question": "What was the first commercially successful computer introduced in 1951?",
+    "options": ["A) UNIVAC 1", "B) Z1", "C) Colossus"],
+    "answer": "A"
+  },
+  {
+    "question": "Which technology was used in first-generation computers (1940s–1950s)?",
+    "options": ["A) Transistors", "B) Vacuum tubes", "C) Microprocessors"],
+    "answer": "B"
+  },
+  {
+    "question": "Which generation of computers introduced artificial intelligence concepts?",
+    "options": ["A) Third Generation", "B) Fourth Generation", "C) Fifth Generation"],
+    "answer": "C"
+  },
+  {
+    "question": "Which advancement allowed computers to become more user-friendly in programming?",
+    "options": ["A) Punch cards", "B) High-level programming languages", "C) Binary arithmetic"],
+    "answer": "B"
+  },
+  {
+    "question": "Which invention by Charles Babbage is considered the first mechanical computer?",
+    "options": ["A) Analytical Engine", "B) Difference Engine", "C) Stepped Reckoner"],
+    "answer": "B"
+  },
+  {
+    "question": "What year was the Pascaline invented?",
+    "options": ["A) 1614", "B) 1621", "C) 1642"],
+    "answer": "C"
+  },
+  {
+    "question": "What year was the Abacus first invented in Babylonia?",
+    "options": ["A) 500 B.C.", "B) 2400 B.C.", "C) 1613"],
+    "answer": "B"
+  }
+]

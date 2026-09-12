@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Studley — Multiple Choice Exam</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-compact">
+          <span class="logo-mark">S</span>
+          <span class="logo-name">Studley</span>
+        </div>
+        <button type="button" id="add-subject-btn" class="btn btn-primary btn-sm btn-block">+ New subject</button>
+      </div>
+      <div id="subjects-list" class="subjects-list"></div>
+    </aside>
+
+    <div class="app">
+      <header class="header">
+        <div class="header-top">
+          <div>
+            <h1 id="active-subject-title">Select a subject</h1>
+            <p class="tagline" id="active-subject-meta">Create or pick a subject folder to get started</p>
+          </div>
+          <button type="button" id="sidebar-toggle" class="btn btn-ghost btn-sm sidebar-toggle" aria-label="Toggle subjects">Subjects</button>
+        </div>
+        <nav class="nav-tabs" role="tablist">
+          <button class="nav-tab active" data-view="build" role="tab" aria-selected="true">Build</button>
+          <button class="nav-tab" data-view="exam" role="tab" aria-selected="false" disabled>Take Exam</button>
+          <button class="nav-tab" data-view="stats" role="tab" aria-selected="false">Stats</button>
+          <button class="nav-tab" data-view="results" role="tab" aria-selected="false" hidden>Results</button>
+        </nav>
+      </header>
+
+      <main>
+        <!-- BUILD VIEW -->
+        <section id="view-build" class="view active">
+          <div class="panel upload-panel">
+            <h2>Import from file</h2>
+            <p class="panel-desc">Upload a <strong>PDF</strong>, <strong>PowerPoint (.pptx)</strong>, <strong>Word (.docx)</strong>, or text file. Studley reads the file and pulls out multiple-choice questions.</p>
+            <label class="upload-zone" id="upload-zone">
+              <input type="file" id="file-input" accept=".pdf,.pptx,.docx,.txt,.json,.text" hidden />
+              <span class="upload-icon">↑</span>
+              <span class="upload-text">Drop a file here or click to browse</span>
+              <span class="upload-hint">PDF · PPTX · DOCX · TXT · JSON</span>
+            </label>
+            <p id="upload-loading" class="upload-loading" hidden>
+              <span class="spinner"></span> Analyzing file…
+            </p>
+            <details class="format-help">
+              <summary>Tips for best results</summary>
+              <ul class="format-tips">
+                <li>Use clear question numbering: <em>1. What is…?</em> or <em>Q: What is…?</em></li>
+                <li>Label choices as <em>A)</em>, <em>B)</em>, <em>C)</em> on separate lines</li>
+                <li>Include <em>ANSWER: B</em> when possible — otherwise you'll assign answers after import</li>
+                <li>One question per slide in PowerPoint works well</li>
+              </ul>
+            </details>
+            <p id="upload-status" class="upload-status" hidden></p>
+          </div>
+
+          <div class="panel builder-panel">
+            <h2>Add a question manually</h2>
+            <form id="question-form" class="question-form">
+              <label class="field">
+                <span>Question</span>
+                <textarea id="question-text" rows="3" placeholder="What is the capital of France?" required></textarea>
+              </label>
+
+              <fieldset class="choices-fieldset">
+                <legend>Answer choices</legend>
+                <div id="choices-list" class="choices-list"></div>
+                <button type="button" id="add-choice-btn" class="btn btn-ghost btn-sm">+ Add choice</button>
+              </fieldset>
+
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Add to exam</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="panel questions-panel">
+            <div class="panel-header">
+              <h2>Questions <span id="question-count" class="badge">0</span></h2>
+              <button type="button" id="start-exam-btn" class="btn btn-primary" disabled>Start exam</button>
+            </div>
+            <div id="questions-preview" class="questions-preview">
+              <p class="empty-state">Select a subject and add questions, or import a file.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- EXAM VIEW -->
+        <section id="view-exam" class="view">
+          <div class="exam-progress">
+            <div class="progress-bar">
+              <div id="progress-fill" class="progress-fill"></div>
+            </div>
+            <span id="progress-label" class="progress-label">Question 1 of 1</span>
+          </div>
+
+          <div class="panel exam-panel">
+            <p id="exam-question-number" class="exam-q-number">Question 1</p>
+            <h2 id="exam-question-text" class="exam-question"></h2>
+            <div id="exam-choices" class="exam-choices" role="radiogroup"></div>
+          </div>
+
+          <div class="exam-nav">
+            <button type="button" id="prev-btn" class="btn btn-ghost" disabled>Previous</button>
+            <button type="button" id="next-btn" class="btn btn-primary">Next</button>
+            <button type="button" id="submit-exam-btn" class="btn btn-accent" hidden>Submit exam</button>
+          </div>
+        </section>
+
+        <!-- STATS VIEW -->
+        <section id="view-stats" class="view">
+          <div class="stats-grid" id="stats-overview"></div>
+          <div class="panel">
+            <h2>By subject</h2>
+            <div id="stats-by-subject" class="stats-by-subject"></div>
+          </div>
+          <div class="panel">
+            <h2>Recent attempts</h2>
+            <div id="stats-recent" class="stats-recent"></div>
+          </div>
+          <div class="panel">
+            <h2>Questions to review</h2>
+            <p class="panel-desc">Questions you miss most often in this subject.</p>
+            <div id="stats-weak" class="stats-weak"></div>
+          </div>
+        </section>
+
+        <!-- RESULTS VIEW -->
+        <section id="view-results" class="view">
+          <div class="panel results-panel">
+            <div class="score-ring" id="score-ring">
+              <span id="score-percent" class="score-percent">0%</span>
+              <span class="score-label">Score</span>
+            </div>
+            <p id="score-summary" class="score-summary"></p>
+            <div class="results-actions">
+              <button type="button" id="review-btn" class="btn btn-ghost">Review answers</button>
+              <button type="button" id="retake-btn" class="btn btn-primary">Retake exam</button>
+              <button type="button" id="back-to-build-btn" class="btn btn-ghost">Back to builder</button>
+            </div>
+          </div>
+
+          <div id="review-list" class="panel review-panel" hidden>
+            <h2>Answer review</h2>
+            <div id="review-items"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <div id="import-modal" class="modal" hidden>
+    <div class="modal-backdrop" id="import-modal-backdrop"></div>
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h2>Assign correct answers</h2>
+        <p class="modal-desc" id="import-modal-desc"></p>
+      </div>
+      <div id="import-review-list" class="import-review-list"></div>
+      <div class="modal-actions">
+        <button type="button" id="import-cancel-btn" class="btn btn-ghost">Cancel</button>
+        <button type="button" id="import-confirm-btn" class="btn btn-primary" disabled>Import questions</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="extractors.js"></script>
+  <script src="parser.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

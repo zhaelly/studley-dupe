@@ -1,0 +1,20 @@
+Q: What is the capital of France?
+A) Paris
+B) London
+C) Berlin
+D) Madrid
+ANSWER: A
+
+Q: What is 2 + 2?
+A) 3
+B) 4
+C) 5
+D) 6
+ANSWER: B
+
+Q: Which planet is closest to the Sun?
+A) Venus
+B) Mercury
+C) Earth
+D) Mars
+ANSWER: B
