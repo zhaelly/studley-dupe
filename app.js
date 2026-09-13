@@ -7,6 +7,7 @@ let examAnswers = [];
 let currentQuestionIndex = 0;
 
 const views = {
+  home: document.getElementById("view-home"),
   build: document.getElementById("view-build"),
   exam: document.getElementById("view-exam"),
   stats: document.getElementById("view-stats"),
@@ -31,7 +32,12 @@ const startExamBtn = document.getElementById("start-exam-btn");
 const uploadZone = document.getElementById("upload-zone");
 const fileInput = document.getElementById("file-input");
 const uploadStatus = document.getElementById("upload-status");
-const uploadLoading = document.getElementById("upload-loading");
+
+// Home and topics elements
+const homeSubjects = document.getElementById('home-subjects');
+const homeAddSubject = document.getElementById('home-add-subject');
+const topicsList = document.getElementById('topics-list');
+const addTopicBtn = document.getElementById('add-topic-btn');
 
 const importModal = document.getElementById("import-modal");
 const importModalDesc = document.getElementById("import-modal-desc");
@@ -70,7 +76,7 @@ function genId() {
 }
 
 function defaultState() {
-  return { subjects: [], activeSubjectId: null, stats: { attempts: [], questionStats: {} } };
+  return { subjects: [], activeSubjectId: null, activeTopicId: null, stats: { attempts: [], questionStats: {} } };
 }
 
 function migrateLegacy() {
@@ -115,7 +121,102 @@ function getActiveSubject() {
 }
 
 function getQuestions() {
-  return getActiveSubject()?.questions || [];
+  const topic = getActiveTopic();
+  if (topic && Array.isArray(topic.questions)) return topic.questions;
+  const subject = getActiveSubject();
+  return (subject && Array.isArray(subject.questions) && subject.questions) || [];
+}
+
+function renderHome() {
+  if (!homeSubjects) return;
+  if (!state.subjects.length) {
+    homeSubjects.innerHTML = '<p class="empty-state">No subjects yet — create one using the button.</p>';
+    return;
+  }
+
+  homeSubjects.innerHTML = state.subjects
+    .map((s) => `
+      <div class="panel" style="min-width:160px;padding:0.75rem;cursor:pointer;" data-id="${s.id}">
+        <strong style="display:block;margin-bottom:0.25rem">${escapeHtml(s.name)}</strong>
+        <small class="muted">${(Array.isArray(s.questions) ? s.questions.length : (Array.isArray(s.topics) ? s.topics.reduce((a,t)=>a+(t.questions?.length||0),0) : 0))} question(s)</small>
+      </div>
+    `)
+    .join('');
+
+  homeSubjects.querySelectorAll('.panel').forEach((card) => {
+    card.addEventListener('click', () => {
+      selectSubject(card.dataset.id);
+      switchView('build');
+    });
+  });
+}
+
+function getActiveTopic() {
+  const subject = getActiveSubject();
+  if (!subject) return null;
+  if (Array.isArray(subject.topics)) return subject.topics.find((t) => t.id === state.activeTopicId) || subject.topics[0] || null;
+  return null;
+}
+
+function renderTopics() {
+  if (!topicsList) return;
+  const subject = getActiveSubject();
+  if (!subject) {
+    topicsList.innerHTML = '<span class="muted">Select a subject to manage topics</span>';
+    return;
+  }
+
+  // initialize topics for legacy subjects
+  if (!Array.isArray(subject.topics)) {
+    subject.topics = [{ id: genId(), name: 'General', questions: subject.questions || [] }];
+    delete subject.questions;
+    saveState();
+  }
+
+  topicsList.innerHTML = subject.topics
+    .map((t) => `
+      <div class="topic-item" style="display:inline-flex;align-items:center;gap:0.25rem;">
+        <button class="btn btn-ghost btn-sm topic-select" data-id="${t.id}">${escapeHtml(t.name)}</button>
+        <button class="btn btn-ghost btn-sm topic-delete" data-id="${t.id}" title="Delete topic">×</button>
+      </div>
+    `)
+    .join('');
+
+  topicsList.querySelectorAll('.topic-select').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      state.activeTopicId = btn.dataset.id;
+      saveState();
+      renderQuestionsPreview();
+      renderHeader();
+    });
+  });
+
+  topicsList.querySelectorAll('.topic-delete').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      deleteTopic(btn.dataset.id);
+    });
+  });
+}
+
+function deleteTopic(topicId) {
+  const subject = getActiveSubject();
+  if (!subject || !Array.isArray(subject.topics)) return;
+  const topic = subject.topics.find((t) => t.id === topicId);
+  if (!topic) return;
+  if (!confirm(`Delete topic "${topic.name}" and its questions?`)) return;
+
+  subject.topics = subject.topics.filter((t) => t.id !== topicId);
+
+  if (state.activeTopicId === topicId) {
+    state.activeTopicId = subject.topics[0]?.id || null;
+  }
+
+  saveState();
+  renderTopics();
+  renderQuestionsPreview();
+  renderHeader();
+  showToast('Topic deleted', 'info');
 }
 
 function showToast(message, type = "info") {
@@ -173,9 +274,10 @@ function renderSubjects() {
           <span class="subject-icon">📁</span>
           <span class="subject-info">
             <span class="subject-name">${escapeHtml(s.name)}</span>
-            <span class="subject-count">${s.questions.length} question${s.questions.length === 1 ? "" : "s"}</span>
+            <span class="subject-count">${(Array.isArray(s.questions) ? s.questions.length : (Array.isArray(s.topics) ? s.topics.reduce((a,t)=>a+(t.questions?.length||0),0) : 0))} question${(Array.isArray(s.questions) ? s.questions.length : (Array.isArray(s.topics) ? s.topics.reduce((a,t)=>a+(t.questions?.length||0),0) : 0)) === 1 ? "" : "s"}</span>
           </span>
         </button>
+        <button type="button" class="subject-add-topic" data-id="${s.id}" title="Add topic">＋</button>
         <button type="button" class="subject-rename" data-id="${s.id}" title="Rename">✎</button>
         <button type="button" class="subject-delete" data-id="${s.id}" title="Delete">×</button>
       </div>
@@ -200,10 +302,37 @@ function renderSubjects() {
       deleteSubject(btn.dataset.id);
     });
   });
+
+  subjectsList.querySelectorAll('.subject-add-topic').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      addTopicForSubject(btn.dataset.id);
+    });
+  });
+}
+
+function addTopicForSubject(subjectId) {
+  const subject = state.subjects.find((s) => s.id === subjectId);
+  if (!subject) return;
+  const name = prompt('Topic name:', 'New Topic');
+  if (!name?.trim()) return;
+  if (!Array.isArray(subject.topics)) subject.topics = [{ id: genId(), name: 'General', questions: subject.questions || [] }];
+  const topic = { id: genId(), name: name.trim(), questions: [] };
+  subject.topics.push(topic);
+  state.activeSubjectId = subjectId;
+  state.activeTopicId = topic.id;
+  saveState();
+  renderAll();
+  showToast(`Added topic "${topic.name}" to ${subject.name}`, 'success');
 }
 
 function selectSubject(id) {
   state.activeSubjectId = id;
+  const subject = state.subjects.find((s) => s.id === id);
+  if (subject) {
+    if (Array.isArray(subject.topics) && subject.topics.length) state.activeTopicId = subject.topics[0].id;
+    else state.activeTopicId = null;
+  }
   saveState();
   renderAll();
   document.querySelector(".layout")?.classList.remove("sidebar-open");
@@ -213,12 +342,30 @@ function addSubject() {
   const name = prompt("Subject name:", "New Subject");
   if (!name?.trim()) return;
 
-  const subject = { id: genId(), name: name.trim(), questions: [], createdAt: Date.now() };
+  const subject = { id: genId(), name: name.trim(), topics: [{ id: genId(), name: 'General', questions: [] }], createdAt: Date.now() };
   state.subjects.push(subject);
   state.activeSubjectId = subject.id;
+  state.activeTopicId = subject.topics[0].id;
   saveState();
   renderAll();
   showToast(`Created "${subject.name}"`, "success");
+}
+
+function addTopic() {
+  const subject = getActiveSubject();
+  if (!subject) {
+    showToast('Select a subject first', 'error');
+    return;
+  }
+  const name = prompt('Topic name:', 'New Topic');
+  if (!name?.trim()) return;
+  if (!Array.isArray(subject.topics)) subject.topics = [{ id: genId(), name: 'General', questions: [] }];
+  const topic = { id: genId(), name: name.trim(), questions: [] };
+  subject.topics.push(topic);
+  state.activeTopicId = topic.id;
+  saveState();
+  renderTopics();
+  renderQuestionsPreview();
 }
 
 function renameSubject(id) {
@@ -256,8 +403,12 @@ function renderHeader() {
     activeSubjectMeta.textContent = "Create or pick a subject folder to get started";
     return;
   }
+  const topic = getActiveTopic();
+  const count = topic ? (topic.questions?.length || 0) : (Array.isArray(subject.questions) ? subject.questions.length : (Array.isArray(subject.topics) ? subject.topics.reduce((a,t)=>a+(t.questions?.length||0),0) : 0));
   activeSubjectTitle.textContent = subject.name;
-  activeSubjectMeta.textContent = `${subject.questions.length} question${subject.questions.length === 1 ? "" : "s"} in this folder`;
+  activeSubjectMeta.textContent = topic
+    ? `${count} question${count === 1 ? "" : "s"} in topic "${topic.name}"`
+    : `${count} question${count === 1 ? "" : "s"} in this folder`;
 }
 
 function createChoiceRow(value = "", isCorrect = false) {
@@ -371,7 +522,9 @@ function renderQuestionsPreview() {
 
   questionsPreview.querySelectorAll(".btn-delete-q").forEach((btn) => {
     btn.addEventListener("click", () => {
-      subject.questions.splice(Number(btn.dataset.index), 1);
+      const topic = getActiveTopic();
+      if (topic && Array.isArray(topic.questions)) topic.questions.splice(Number(btn.dataset.index), 1);
+      else if (subject.questions) subject.questions.splice(Number(btn.dataset.index), 1);
       saveState();
       renderQuestionsPreview();
       renderSubjects();
@@ -386,8 +539,13 @@ function importQuestions(parsed) {
     showToast("Create or select a subject first", "error");
     return 0;
   }
-
-  subject.questions.push(...parsed);
+  const topic = getActiveTopic();
+  if (topic && Array.isArray(topic.questions)) {
+    topic.questions.push(...parsed);
+  } else {
+    subject.questions = subject.questions || [];
+    subject.questions.push(...parsed);
+  }
   saveState();
   renderAll();
   return parsed.length;
@@ -395,7 +553,6 @@ function importQuestions(parsed) {
 
 function setUploadBusy(busy) {
   uploadZone.classList.toggle("disabled", busy);
-  uploadLoading.hidden = !busy;
   fileInput.disabled = busy;
 }
 
@@ -678,7 +835,11 @@ function computeGlobalStats() {
     ? Math.round(attempts.reduce((s, a) => s + a.score, 0) / totalAttempts)
     : 0;
   const bestScore = totalAttempts ? Math.max(...attempts.map((a) => a.score)) : 0;
-  const totalQuestions = state.subjects.reduce((s, sub) => s + sub.questions.length, 0);
+  const totalQuestions = state.subjects.reduce((s, sub) => {
+    if (Array.isArray(sub.questions)) return s + sub.questions.length;
+    if (Array.isArray(sub.topics)) return s + sub.topics.reduce((a, t) => a + (t.questions?.length || 0), 0);
+    return s;
+  }, 0);
 
   return { totalAttempts, avgScore, bestScore, totalQuestions, totalSubjects: state.subjects.length };
 }
@@ -715,8 +876,8 @@ function renderStats() {
         return `
           <div class="subject-stat-row">
             <div>
-              <strong>${escapeHtml(s.name)}</strong>
-              <span class="subject-stat-meta">${s.questions.length} questions</span>
+                <strong>${escapeHtml(s.name)}</strong>
+                <span class="subject-stat-meta">${(Array.isArray(s.questions) ? s.questions.length : (Array.isArray(s.topics) ? s.topics.reduce((a,t)=>a+(t.questions?.length||0),0) : 0))} questions</span>
             </div>
             <div class="subject-stat-scores">
               ${
@@ -777,7 +938,11 @@ function renderWeakQuestions() {
     return;
   }
 
-  const questions = subject.questions;
+  const questions = Array.isArray(subject.questions)
+    ? subject.questions
+    : Array.isArray(subject.topics)
+    ? subject.topics.flatMap((t) => t.questions || [])
+    : [];
   statsWeak.innerHTML = weak
     .map((w) => {
       const text = questions[w.index]?.text || w.text || `Question ${w.index + 1}`;
@@ -796,6 +961,8 @@ function renderAll() {
   renderSubjects();
   renderHeader();
   renderQuestionsPreview();
+  renderHome();
+  renderTopics();
 }
 
 // Event listeners
@@ -816,7 +983,13 @@ questionForm.addEventListener("submit", (e) => {
   const data = getFormData();
   if (!data) return;
 
-  subject.questions.push(data);
+  const topic = getActiveTopic();
+  if (topic && Array.isArray(topic.questions)) {
+    topic.questions.push(data);
+  } else {
+    subject.questions = subject.questions || [];
+    subject.questions.push(data);
+  }
   saveState();
   renderQuestionsPreview();
   renderSubjects();
@@ -824,6 +997,10 @@ questionForm.addEventListener("submit", (e) => {
   resetForm();
   questionText.focus();
 });
+
+// home and topic controls
+homeAddSubject?.addEventListener('click', addSubject);
+addTopicBtn?.addEventListener('click', addTopic);
 
 addChoiceBtn.addEventListener("click", () => choicesList.append(createChoiceRow()));
 
@@ -880,10 +1057,7 @@ navTabs.forEach((tab) => {
 
 // Init
 resetForm();
-if (!state.subjects.length) {
-  const id = genId();
-  state.subjects.push({ id, name: "General", questions: [], createdAt: Date.now() });
-  state.activeSubjectId = id;
-  saveState();
-}
 renderAll();
+// Start on home if no subject selected
+if (!state.activeSubjectId) switchView('home');
+else switchView('build');

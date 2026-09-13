@@ -40,6 +40,18 @@
       </header>
 
       <main>
+        <!-- HOME VIEW -->
+        <section id="view-home" class="view">
+          <div class="panel">
+            <h2>Choose a subject</h2>
+            <p class="panel-desc">Select a subject folder to begin. Create new subjects using the button in the sidebar or below.</p>
+            <div id="home-subjects" style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:0.75rem;"></div>
+            <div style="margin-top:0.75rem;">
+              <button id="home-add-subject" class="btn btn-primary btn-sm">+ New subject</button>
+            </div>
+          </div>
+        </section>
+
         <!-- BUILD VIEW -->
         <section id="view-build" class="view active">
           <div class="panel upload-panel">
@@ -51,9 +63,7 @@
               <span class="upload-text">Drop a file here or click to browse</span>
               <span class="upload-hint">PDF · PPTX · DOCX · TXT · JSON</span>
             </label>
-            <p id="upload-loading" class="upload-loading" hidden>
-              <span class="spinner"></span> Analyzing file…
-            </p>
+            <!-- upload loading removed per request -->
             <details class="format-help">
               <summary>Tips for best results</summary>
               <ul class="format-tips">
@@ -67,6 +77,10 @@
           </div>
 
           <div class="panel builder-panel">
+            <div id="topics-panel" style="margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+              <div id="topics-list" style="display:flex;gap:0.5rem;align-items:center;"></div>
+              <button id="add-topic-btn" class="btn btn-ghost btn-sm">+ New topic</button>
+            </div>
             <h2>Add a question manually</h2>
             <form id="question-form" class="question-form">
               <label class="field">
@@ -157,7 +171,34 @@
             <div id="review-items"></div>
           </div>
         </section>
-      </main>
+        </section>
+
+          <!-- DEMO: Animation examples -->
+          <section id="view-demo" class="view">
+            <div class="panel demo-panel">
+              <h2>Animations demo</h2>
+              <p class="panel-desc">Try the controls below to see the new animations from <code>styles.css</code>.</p>
+
+              <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap;">
+                <button id="btn-fade" class="btn btn-ghost btn-sm">Fade In</button>
+                <button id="btn-pop" class="btn btn-ghost btn-sm">Pop</button>
+                <button id="btn-stagger" class="btn btn-ghost btn-sm">Stagger list</button>
+                <button id="btn-float" class="btn btn-ghost btn-sm">Toggle float</button>
+              </div>
+
+              <div style="display:flex;gap:1rem;align-items:flex-start;flex-wrap:wrap;">
+                <div id="demo-box" class="panel" style="min-width:160px;min-height:80px;display:flex;align-items:center;justify-content:center;">Demo box</div>
+
+                <ul id="demo-list" class="stagger" style="list-style:none;padding:0;margin:0;display:flex;gap:0.5rem;">
+                  <li style="--i:0;padding:0.5rem 0.75rem;background:var(--surface-2);border-radius:8px;">One</li>
+                  <li style="--i:1;padding:0.5rem 0.75rem;background:var(--surface-2);border-radius:8px;">Two</li>
+                  <li style="--i:2;padding:0.5rem 0.75rem;background:var(--surface-2);border-radius:8px;">Three</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+        </main>
     </div>
   </div>
 
@@ -183,5 +224,37 @@
   <script src="extractors.js"></script>
   <script src="parser.js"></script>
   <script src="app.js"></script>
+  <script>
+    // Demo controls for animations
+    (function(){
+      const demoBox = document.getElementById('demo-box');
+      const demoList = document.getElementById('demo-list');
+
+      function trigger(el, cls){
+        el.classList.remove('animate', cls);
+        // force reflow
+        void el.offsetWidth;
+        el.classList.add('animate', cls);
+      }
+
+      document.getElementById('btn-fade').addEventListener('click', ()=> trigger(demoBox, 'animate-fade-in'));
+      document.getElementById('btn-pop').addEventListener('click', ()=> trigger(demoBox, 'animate-pop'));
+      document.getElementById('btn-float').addEventListener('click', ()=> demoBox.classList.toggle('animate-float'));
+
+      document.getElementById('btn-stagger').addEventListener('click', ()=>{
+        const items = Array.from(demoList.children);
+        items.forEach((it, i)=>{
+          it.style.setProperty('--i', i);
+          it.classList.remove('animate', 'animate-slide-up');
+          void it.offsetWidth;
+          it.classList.add('animate', 'animate-slide-up');
+          it.addEventListener('animationend', function handler(){
+            it.classList.remove('animate', 'animate-slide-up');
+            it.removeEventListener('animationend', handler);
+          });
+        });
+      });
+    })();
+  </script>
 </body>
 </html>
