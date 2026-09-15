@@ -1,11 +1,13 @@
-const DOCUMENT_EXTENSIONS = ["pdf", "pptx", "docx", "doc"];
+const TEXT_EXTENSIONS = ["txt", "text", "json"];
 
 function getFileExtension(filename) {
   return (filename || "").split(".").pop()?.toLowerCase() || "";
 }
 
-function isDocumentFile(filename) {
-  return DOCUMENT_EXTENSIONS.includes(getFileExtension(filename));
+function isTextFile(file) {
+  const name = getFileExtension(file?.name || "");
+  const type = (file?.type || "").toLowerCase();
+  return TEXT_EXTENSIONS.includes(name) || type.startsWith("text/") || type === "application/json";
 }
 
 function extractParagraphsFromXml(xml, paragraphTag, textTag) {
@@ -99,22 +101,8 @@ async function extractFromDocx(arrayBuffer) {
 }
 
 async function extractTextFromFile(file) {
-  const ext = getFileExtension(file.name);
-
-  if (ext === "doc") {
-    throw new Error("Old .ppt / .doc files are not supported. Save as .pptx or .docx and try again.");
-  }
-
-  if (ext === "pdf") {
-    return extractFromPdf(await file.arrayBuffer());
-  }
-
-  if (ext === "pptx") {
-    return extractFromPptx(await file.arrayBuffer());
-  }
-
-  if (ext === "docx") {
-    return extractFromDocx(await file.arrayBuffer());
+  if (!isTextFile(file)) {
+    throw new Error("Only text files (.txt, .text, .json) are supported.");
   }
 
   return file.text();

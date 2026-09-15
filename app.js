@@ -4,6 +4,7 @@ const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 let state = loadState();
 let examAnswers = [];
+let examQuestions = [];
 let currentQuestionIndex = 0;
 
 const views = {
@@ -31,6 +32,8 @@ const startExamBtn = document.getElementById("start-exam-btn");
 
 const uploadZone = document.getElementById("upload-zone");
 const fileInput = document.getElementById("file-input");
+const pasteInput = document.getElementById("paste-input");
+const pasteImportBtn = document.getElementById("paste-import-btn");
 const uploadStatus = document.getElementById("upload-status");
 
 // Home and topics elements
@@ -552,8 +555,10 @@ function importQuestions(parsed) {
 }
 
 function setUploadBusy(busy) {
-  uploadZone.classList.toggle("disabled", busy);
-  fileInput.disabled = busy;
+  if (uploadZone) uploadZone.classList.toggle("disabled", busy);
+  if (fileInput) fileInput.disabled = busy;
+  if (pasteInput) pasteInput.disabled = busy;
+  if (pasteImportBtn) pasteImportBtn.disabled = busy;
 }
 
 function allReviewQuestionsAnswered() {
@@ -673,6 +678,19 @@ async function handleFile(file) {
     return;
   }
 
+  const fileName = (file.name || "").toLowerCase();
+  const fileType = (file.type || "").toLowerCase();
+  const isTextOnly = ["txt", "text", "json"].includes(fileName.split(".").pop() || "") || fileType.startsWith("text/") || fileType === "application/json";
+
+  if (!isTextOnly) {
+    uploadStatus.textContent = "Only text files (.txt, .text, .json) are supported.";
+    uploadStatus.className = "upload-status error";
+    uploadStatus.hidden = false;
+    showToast("Only text files (.txt, .text, .json) are supported.", "error");
+    fileInput.value = "";
+    return;
+  }
+
   setUploadBusy(true);
 
   try {
@@ -694,6 +712,18 @@ function startExam() {
   const questions = getQuestions();
   if (!questions.length) return;
 
+  examQuestions = shuffle(questions).map((question) => {
+    const choices = shuffle(question.choices.map((choice, index) => ({
+      choice,
+      isCorrect: index === question.correctIndex,
+    })));
+
+    return {
+      ...question,
+      choices: choices.map(({ choice }) => choice),
+      correctIndex: choices.findIndex(({ isCorrect }) => isCorrect),
+    };
+  });
   examAnswers = new Array(questions.length).fill(null);
   currentQuestionIndex = 0;
   reviewList.hidden = true;
@@ -701,8 +731,17 @@ function startExam() {
   renderExamQuestion();
 }
 
+function shuffle(items) {
+  const shuffled = [...items];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
 function renderExamQuestion() {
-  const questions = getQuestions();
+  const questions = examQuestions;
   const q = questions[currentQuestionIndex];
   const total = questions.length;
   const answered = currentQuestionIndex + 1;
@@ -772,7 +811,7 @@ function recordStats(correct, total, questionResults) {
 }
 
 function submitExam() {
-  const questions = getQuestions();
+  const questions = examQuestions;
   const correct = questions.reduce(
     (acc, q, i) => acc + (examAnswers[i] === q.correctIndex ? 1 : 0),
     0
@@ -796,7 +835,7 @@ function submitExam() {
 }
 
 function renderReview() {
-  const questions = getQuestions();
+  const questions = examQuestions;
   reviewItems.innerHTML = questions
     .map((q, i) => {
       const selected = examAnswers[i];
@@ -1006,18 +1045,48 @@ addChoiceBtn.addEventListener("click", () => choicesList.append(createChoiceRow(
 
 startExamBtn.addEventListener("click", startExam);
 
-uploadZone.addEventListener("click", () => fileInput.click());
-uploadZone.addEventListener("dragover", (e) => {
+uploadZone?.addEventListener("click", () => fileInput?.click());
+uploadZone?.addEventListener("dragover", (e) => {
   e.preventDefault();
   uploadZone.classList.add("dragover");
 });
-uploadZone.addEventListener("dragleave", () => uploadZone.classList.remove("dragover"));
-uploadZone.addEventListener("drop", (e) => {
+uploadZone?.addEventListener("dragleave", () => uploadZone.classList.remove("dragover"));
+uploadZone?.addEventListener("drop", (e) => {
   e.preventDefault();
   uploadZone.classList.remove("dragover");
   handleFile(e.dataTransfer.files[0]);
 });
-fileInput.addEventListener("change", () => handleFile(fileInput.files[0]));
+fileInput?.addEventListener("change", () => handleFile(fileInput.files[0]));
+pasteImportBtn?.addEventListener("click", () => {
+  const text = pasteInput?.value?.trim() || "";
+  if (!text) {
+    uploadStatus.textContent = "Paste some exam text first.";
+    uploadStatus.className = "upload-status error";
+    uploadStatus.hidden = false;
+    showToast("Paste some exam text first.", "error");
+    return;
+  }
+
+  if (!getActiveSubject()) {
+    showToast("Create or select a subject first", "error");
+    return;
+  }
+
+  setUploadBusy(true);
+
+  try {
+    const result = parseDocumentContent(text, "pasted-text.txt");
+    processParseResult(result, "pasted text");
+    pasteInput.value = "";
+  } catch (err) {
+    uploadStatus.textContent = err.message || "Failed to analyze pasted text";
+    uploadStatus.className = "upload-status error";
+    uploadStatus.hidden = false;
+    showToast(err.message || "Could not analyze pasted text", "error");
+  } finally {
+    setUploadBusy(false);
+  }
+});
 
 importConfirmBtn.addEventListener("click", () => {
   if (!allReviewQuestionsAnswered()) return;
@@ -1035,7 +1104,7 @@ prevBtn.addEventListener("click", () => {
 });
 
 nextBtn.addEventListener("click", () => {
-  if (currentQuestionIndex < getQuestions().length - 1) {
+  if (currentQuestionIndex < examQuestions.length - 1) {
     currentQuestionIndex++;
     renderExamQuestion();
   }

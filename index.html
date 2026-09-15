@@ -55,22 +55,18 @@
         <!-- BUILD VIEW -->
         <section id="view-build" class="view active">
           <div class="panel upload-panel">
-            <h2>Import from file</h2>
-            <p class="panel-desc">Upload a <strong>PDF</strong>, <strong>PowerPoint (.pptx)</strong>, <strong>Word (.docx)</strong>, or text file. Studley reads the file and pulls out multiple-choice questions.</p>
-            <label class="upload-zone" id="upload-zone">
-              <input type="file" id="file-input" accept=".pdf,.pptx,.docx,.txt,.json,.text" hidden />
-              <span class="upload-icon">↑</span>
-              <span class="upload-text">Drop a file here or click to browse</span>
-              <span class="upload-hint">PDF · PPTX · DOCX · TXT · JSON</span>
-            </label>
-            <!-- upload loading removed per request -->
+            <h2>Paste exam text</h2>
+            <p class="panel-desc">Paste questions and choices directly here. Use clear numbering and answer lines like <strong>ANSWER: B</strong> when possible.</p>
+            <textarea id="paste-input" rows="10" placeholder="1. What is the capital of France?&#10;A) London&#10;B) Paris&#10;C) Rome&#10;D) Berlin&#10;ANSWER: B"></textarea>
+            <div class="form-actions" style="margin-top:0.75rem;">
+              <button type="button" id="paste-import-btn" class="btn btn-primary">Import questions</button>
+            </div>
             <details class="format-help">
               <summary>Tips for best results</summary>
               <ul class="format-tips">
                 <li>Use clear question numbering: <em>1. What is…?</em> or <em>Q: What is…?</em></li>
                 <li>Label choices as <em>A)</em>, <em>B)</em>, <em>C)</em> on separate lines</li>
                 <li>Include <em>ANSWER: B</em> when possible — otherwise you'll assign answers after import</li>
-                <li>One question per slide in PowerPoint works well</li>
               </ul>
             </details>
             <p id="upload-status" class="upload-status" hidden></p>
